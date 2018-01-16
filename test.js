@@ -1,20 +1,22 @@
-var server = require('signalhub/server')()
-var signalhub = require('signalhub')
+global.window = {}
+window.WebSocket = require('websocket').w3cwebsocket
+var server = require('signalhubws/server')()
+var signalhub = require('signalhubws')
 var swarm = require('./')
 var test = require('tape')
-var wrtc = require('electron-webrtc')()
+var wrtc = require('wrtc')
 
 test.onFinish(function () {
   server.close()
-  wrtc.close()
+  // wrtc.close()
 })
 
-server.listen(9000, function () {
+server.listen(9900, function () {
   test('greet and close', function (t) {
     t.plan(8)
 
-    var hub1 = signalhub('app', 'localhost:9000')
-    var hub2 = signalhub('app', 'localhost:9000')
+    var hub1 = signalhub('app', ['localhost:9900'])
+    var hub2 = signalhub('app', ['localhost:9900'])
 
     var sw1 = swarm(hub1, {wrtc})
     var sw2 = swarm(hub2, {wrtc})
@@ -60,4 +62,8 @@ server.listen(9000, function () {
       }
     })
   })
+})
+process.on('unhandledRejection', function (err) {
+  console.error(err)
+  process.exit(1)
 })
